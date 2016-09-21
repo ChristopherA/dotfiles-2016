@@ -123,16 +123,6 @@ if [[ `uname` == 'Darwin' ]]; then
 
     sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.locate.plist
 
-    echo -e "\n  fsck startup volume."
-
-    # Repair startup volume
-    sudo fsck -fly
-
-    echo -e "\n  repair startup volume."
-
-    # Repair disk
-    sudo diskutil repairVolume /
-
  else
    echo "This script only supports OSX 10.9 Mavericks or better! Exiting..."
  fi

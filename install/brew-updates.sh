@@ -21,7 +21,7 @@ brew_updates() {
 
   # Create local applications folder
 
-  if $SCRIPT_DEBUG; then echo -e "...Creating ~/Applications if it doesn't exist"
+  if $SCRIPT_DEBUG; then echo -e "...Creating ~/Applications if it doesn't exist"; fi
 
   if [ ! -d ~/Applications ]; then mkdir ~/Applications; fi
 
@@ -110,7 +110,7 @@ fi
 if $SCRIPT_DEBUG; then echo "...Homebrew updated."; fi
 
 
-} # end function load_bashrc_files()
+} # end function brew_updates()
 
 brew_updates
 unset brew_updates

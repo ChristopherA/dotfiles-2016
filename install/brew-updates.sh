@@ -11,13 +11,19 @@
 
 # Script Debugger
 
-#SCRIPT_DEBUG=true
-SCRIPT_DEBUG=false
+SCRIPT_DEBUG=true
+#SCRIPT_DEBUG=false
 
 # kill on error
 set -e
 
 brew_updates() {
+
+  # Create local applications folder
+
+  if $SCRIPT_DEBUG; then echo -e "...Creating ~/Applications if it doesn't exist"
+
+  if [ ! -d ~/Applications ]; then mkdir ~/Applications; fi
 
 # Check for Homebrew
 if test ! $(which brew); then

@@ -112,16 +112,11 @@ if [[ `uname` == 'Darwin' ]]; then
 
     # Run maintenance scripts
     echo -e "\n  Running maintenance scripts."
-    # The whathis database, used by whatis and apropos, is only generated weekly,
-    # so run it after changing commands.
+    # The locate and whathis databases, also used by apropos, is only generated weekly,
+    # so run it after changing commands. This will happen in the background and can
+    # take some time to generate the first time.
 
     sudo periodic daily weekly monthly
-
-    # Update the locate database. This will happen in the background and can
-    # take some time to generate the first time.
-    echo -e "\n  Updating locate database."
-
-    sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.locate.plist
 
  else
    echo "This script only supports OSX 10.9 Mavericks or better! Exiting..."

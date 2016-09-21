@@ -101,13 +101,17 @@ if [[ `uname` == 'Darwin' ]]; then
       echo -e "\n    Apple Command Line Tools already installed."
     fi
 
+
     # Clean log files
+    echo -e "\n  Cleaning log files."
     sudo rm -rf /var/log/*
 
     # Force empty trash
+    echo -e "\n  Emptying trash."
     sudo rm -rf ~/.Trash/*
 
     # Run maintenance scripts
+    echo -e "\n  Running maintenance scripts."
     # The whathis database, used by whatis and apropos, is only generated weekly,
     # so run it after changing commands.
 
@@ -115,14 +119,19 @@ if [[ `uname` == 'Darwin' ]]; then
 
     # Update the locate database. This will happen in the background and can
     # take some time to generate the first time.
+    echo -e "\n  Updating locate database."
 
     sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.locate.plist
 
-    # Repair startup volume
-    sudo fsck -fy
+    echo -e "\n  fsck startup volume."
 
-    # Repair disk permissions
-    sudo diskutil repairPermissions /
+    # Repair startup volume
+    sudo fsck -fly
+
+    echo -e "\n  repair startup volume."
+
+    # Repair disk
+    sudo diskutil repairVolume /
 
  else
    echo "This script only supports OSX 10.9 Mavericks or better! Exiting..."

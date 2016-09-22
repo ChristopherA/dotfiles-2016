@@ -4,9 +4,18 @@
 
 # 2016-09-21 Confirmed working with macOS Sierra 10.12.0
 
-# TBD: It is possible that after command line utilities installed that
-# additional updates may be required, even though previous updates resulted in
-# a report of no updates required. This requires refactoring the update check.
+# TBD: It is possible that after command line utilities are installed that
+# additional updates may be required, even though previous test resulted in
+# a report of no updates required. For now I'm forcing one last update. To
+# to properly requires refactoring this script and how it does update checks,
+# probably some form of 'until [ $found_updates -eq 0 ] do xxxx done'
+
+# TBD: There should be some way if a restart is required to install a
+# script to automatically start this script again, until found_updates() is
+# false. I've had too many false starts on this for it to be a priority.
+
+# TBD: Add a $SCRIPT_DEBUG flag and redo all the echos and command output to
+# /dev/null for if $SCRIPT_DEBUG is false.
 
 # Execute on a new machine via:
 
@@ -104,6 +113,11 @@ if [[ `uname` == 'Darwin' ]]; then
       wait
 
       /bin/rm /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
+
+      # Check one last time for updates - TBD: refactor to do a test first.
+      sudo /usr/sbin/softwareupdate -ia
+      wait
+
       echo -e "\n    Finished installing Apple Command Line Tools."
     else
       echo -e "\n    Apple Command Line Tools already installed."

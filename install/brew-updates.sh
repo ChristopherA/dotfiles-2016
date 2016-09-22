@@ -2,8 +2,8 @@
 
 # ~/.dotfiles/install/brew-updates.sh -- update brew, install it if necessary
 # http://brew.sh, search for brew formulae at http://braumeister.org
-#
-# also sourced by `allosxupdates.sh`
+
+# 2016-09-21 Confirmed working with macOS Sierra 10.12.0
 
 # Can be executed remotely on a new machine via:
 
@@ -25,7 +25,7 @@ brew_updates() {
 
   if [ ! -d ~/Applications ]; then mkdir ~/Applications; fi
 
-# Check for Homebrew
+# Check for Homebrew. Install Homebrew http://brew.sh if doesn't exist, force via curl if necessary
 if test ! $(which brew); then
   if $SCRIPT_DEBUG; then echo "...Installing Homebrew."; fi
 

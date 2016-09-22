@@ -1,11 +1,111 @@
 #!/bin/bash
 
+# Install all macOS updates, reboot if necessary, and install command line tools
+
+# 2016-09-21 Confirmed working with macOS Sierra 10.12.0
+
+# TBD: It is possible that after command line utilities installed that
+# additional updates may be required, even though previous updates resulted in
+# a report of no updates required. This requires refactoring the update check.
+
 # Execute on a new machine via:
 
 # $ curl -L https://raw.githubusercontent.com/ChristopherA/dotfiles/master/install/allosxupdates.sh | bash
 
+# Script Debugger
+
+SCRIPT_DEBUG=true
+#SCRIPT_DEBUG=false
+
+# kill on error
+set -e
+
+do_macos_updates() {
+
+  # Define some variables...
+  tmp_file=".softwareupdate.$$"
+  reboot=""
+  found_updates=""
+
+  echo -e "\n  Checking Apple Software Update Server for available updates,\n  Please be patient. This process may take a while to complete... \c"
+  sudo /usr/sbin/softwareupdate -l &> $tmp_file
+  wait
+
+  echo -e "\n"
+  reboot=$(/usr/bin/grep "restart" $tmp_file | /usr/bin/wc -l | xargs )
+  echo "    $reboot updates require a reboot."
+  /usr/bin/grep "restart" $tmp_file
+
+  echo ""
+  found_updates=$(/usr/bin/grep -v "restart" $tmp_file | grep "recommended" | /usr/bin/wc -l | xargs )
+  echo "    $found_updates updates do not require a reboot."
+  /usr/bin/grep -v "restart" $tmp_file | grep "recommended"
+  echo ""
+
+  if [ $found_updates = "0" ]
+    then
+       echo "    No new recommended updates found."
+    else
+      if [ $reboot = "0" ]
+      then
+        echo "    Updates found, but no reboot required. Installing now."
+        echo "    Please be patient. This process may take a while to complete."
+        sudo /usr/sbin/softwareupdate -ia
+        wait
+        echo -e "\n  Finished with all Apple Software Update installations."
+      else
+        echo "    Updates found, reboot required. Installing now."
+        echo "    Please be patient. This process may take a while to complete."
+        echo -e "    Once complete, this machine will automatically restart.\n"
+        sudo /usr/sbin/softwareupdate -ia
+        wait
+        echo -e "    Finished with all Apple Software Update installations."
+      fi
+    fi
+
+  # cleaning up temp files before possible reboot
+  /bin/rm -rf $tmp_file
+
+  if [ $reboot != "0" ]
+  then
+    echo -e "\n  Apple Software Updates requiring restart have been installed."
+    echo -e "  Please run this script again after restart.\n"
+    read -p "Press any key to restart..." </dev/tty
+    wait
+    echo -e "\nRestarting..."
+    sudo /sbin/shutdown -r now
+  fi
+
+} # end function do_macos_updates()
+
+install_command_line_tools() {
+
+  echo -e "\n  Checking to see if Apple Command Line Tools are installed."
+  xcode-select -p &>/dev/null
+  if [[ $? -ne 0 ]]
+  then
+    echo "    Apple Command Line Utilities not installed. Installing..."
+    echo "    Please be patient. This process may take a while to complete."
+
+    # Tell software update to also install OXS Command Line Tools without prompt
+    ## As per https://sector7g.be/posts/installing-xcode-command-line-tools-through-terminal-without-any-user-interaction
+
+    touch /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
+
+    sudo /usr/sbin/softwareupdate -ia
+    wait
+
+    /bin/rm /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
+    echo -e "\n    Finished installing Apple Command Line Tools."
+  else
+    echo -e "\n    Apple Command Line Tools already installed."
+  fi
+
+
+} # end function install_command_line_tools
+
 # Ask for the administrator password upfront
-echo -e "\nUpdating system software and developer tools. Your administrator password will be required."
+echo -e "\nUpdating system software and developer tools. \nYour administrator password will be required."
 sudo -v
 
 # What kind of OS are we running?
@@ -26,81 +126,9 @@ if [[ `uname` == 'Darwin' ]]; then
   if [ "$OSX_VERS_FIRST" -ge 9 ];
   then
 
-    # Define some variables...
-    tmp_file=".softwareupdate.$$"
-    reboot=""
-    found_updates=""
-
-    echo -e "\n  Checking Apple Software Update Server for available updates,\n  Please be patient. This process may take a while to complete... \c"
-    sudo /usr/sbin/softwareupdate -l &> $tmp_file
-    wait
-
-    echo -e "\n"
-    reboot=$(/usr/bin/grep "restart" $tmp_file | /usr/bin/wc -l | xargs )
-    echo "    $reboot updates require a reboot."
-    /usr/bin/grep "restart" $tmp_file
-
-    echo ""
-    found_updates=$(/usr/bin/grep -v "restart" $tmp_file | grep "recommended" | /usr/bin/wc -l | xargs )
-    echo "    $found_updates updates do not require a reboot."
-    /usr/bin/grep -v "restart" $tmp_file | grep "recommended"
-    echo ""
-
-    if [ $found_updates = "0" ]
-      then
-         echo "    No new recommended updates found."
-      else
-        if [ $reboot = "0" ]
-        then
-          echo "    Updates found, but no reboot required. Installing now."
-          echo "    Please be patient. This process may take a while to complete."
-          sudo /usr/sbin/softwareupdate -ia
-          wait
-          echo -e "\n  Finished with all Apple Software Update installations."
-        else
-          echo "    Updates found, reboot required. Installing now."
-          echo "    Please be patient. This process may take a while to complete."
-          echo -e "    Once complete, this machine will automatically restart.\n"
-          sudo /usr/sbin/softwareupdate -ia
-          wait
-          echo -e "    Finished with all Apple Software Update installations."
-        fi
-      fi
-
-    # cleaning up temp files before possible reboot
-    /bin/rm -rf $tmp_file
-
-    if [ $reboot != "0" ]
-    then
-      echo -e "\n  Apple Software Updates requiring restart have been installed."
-      echo -e "  Please run this script again after restart.\n"
-      read -p "Press any key to restart..." </dev/tty
-      wait
-      echo -e "\nRestarting..."
-      sudo /sbin/shutdown -r now
-    fi
-
-    echo -e "\n  Checking to see if Apple Command Line Tools are installed."
-    xcode-select -p &>/dev/null
-    if [[ $? -ne 0 ]]
-    then
-      echo "    Apple Command Line Utilities not installed. Installing..."
-      echo "    Please be patient. This process may take a while to complete."
-
-      # Tell software update to also install OXS Command Line Tools without prompt
-      ## As per https://sector7g.be/posts/installing-xcode-command-line-tools-through-terminal-without-any-user-interaction
-
-      touch /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
-
-      sudo /usr/sbin/softwareupdate -ia
-      wait
-
-      /bin/rm /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
-      echo -e "\n    Finished installing Apple Command Line Tools."
-    else
-      echo -e "\n    Apple Command Line Tools already installed."
-    fi
-
+    do_macos_updates # Install all macOS updates
+    install_command_line_tools # Install macOS command line tools
+    do_macos_updates # Check for updates again
 
     # Clean log files
     echo -e "\n  Cleaning log files."
@@ -127,3 +155,6 @@ else
 fi
 
 echo -e "\nFinished installation.\n"
+
+unset do_macos_updates
+unset install_command_line_tools

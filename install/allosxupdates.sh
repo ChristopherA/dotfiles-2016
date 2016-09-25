@@ -4,22 +4,27 @@
 
 # 2016-09-21 Confirmed working with macOS Sierra 10.12.0
 
+# Execute on a new machine via:
+
+# $ curl -L https://raw.githubusercontent.com/ChristopherA/dotfiles/master/install/allosxupdates.sh | bash
+
 # TBD: It is possible that after command line utilities are installed that
 # additional updates may be required, even though previous test resulted in
 # a report of no updates required. For now I'm forcing one last update. To
-# to properly requires refactoring this script and how it does update checks,
+# to do properly requires refactoring this script and how it does update checks,
 # probably some form of 'until [ $found_updates -eq 0 ] do xxxx done'
 
 # TBD: There should be some way if a restart is required to install a
 # script to automatically start this script again, until found_updates() is
 # false. I've had too many false starts on this for it to be a priority.
 
-# TBD: Add a $SCRIPT_DEBUG flag and redo all the echos and command output to
-# /dev/null for if $SCRIPT_DEBUG is false.
+# TBD: Redo all the echos and command output to /dev/null
+# if $SCRIPT_DEBUG is false.
 
-# Execute on a new machine via:
+# Script Debugger
 
-# $ curl -L https://raw.githubusercontent.com/ChristopherA/dotfiles/master/install/allosxupdates.sh | bash
+#SCRIPT_DEBUG=true
+#SCRIPT_DEBUG=false
 
 # Ask for the administrator password upfront
 echo -e "\nUpdating system software and developer tools.\n Your administrator password will be required."
@@ -51,7 +56,7 @@ if [[ `uname` == 'Darwin' ]]; then
     echo -e "\n  Checking Apple Software Update Server for available updates,\n  Please be patient. This process may take a while to complete... \c"
     sudo /usr/sbin/softwareupdate -l &> $tmp_file
     wait
-    sudo -v
+    sudo -v # extend sudo's timeout by 5 minutes
 
     echo -e "\n"
     reboot=$(/usr/bin/grep "restart" $tmp_file | /usr/bin/wc -l | xargs )
@@ -72,19 +77,19 @@ if [[ `uname` == 'Darwin' ]]; then
         then
           echo "    Updates found, but no reboot required. Installing now."
           echo "    Please be patient. This process may take a while to complete."
-          sudo -v
+          sudo -v # extend sudo's timeout by 5 minutes
           sudo /usr/sbin/softwareupdate -ia
           wait
-          sudo -v
+          sudo -v # extend sudo's timeout by 5 minutes
           echo -e "\n  Finished with all Apple Software Update installations."
         else
           echo "    Updates found, reboot required. Installing now."
           echo "    Please be patient. This process may take a while to complete."
           echo -e "    Once complete, this machine will automatically restart.\n"
-          sudo -v
+          sudo -v # extend sudo's timeout by 5 minutes
           sudo /usr/sbin/softwareupdate -ia
           wait
-          sudo -v
+          sudo -v # extend sudo's timeout by 5 minutes
           echo -e "    Finished with all Apple Software Update installations."
         fi
       fi
@@ -113,18 +118,18 @@ if [[ `uname` == 'Darwin' ]]; then
       ## As per https://sector7g.be/posts/installing-xcode-command-line-tools-through-terminal-without-any-user-interaction
 
       touch /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
-      sudo -v
+      sudo -v # extend sudo's timeout by 5 minutes
       sudo /usr/sbin/softwareupdate -ia
       wait
-      sudo -v
+      sudo -v # extend sudo's timeout by 5 minutes
 
       /bin/rm /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
 
       # Check one last time for updates - TBD: refactor to do a test first.
-      sudo -v
+      sudo -v # extend sudo's timeout by 5 minutes
       sudo /usr/sbin/softwareupdate -ia
       wait
-      sudo -v
+      sudo -v # extend sudo's timeout by 5 minutes
 
       echo -e "\n    Finished installing Apple Command Line Tools."
     else

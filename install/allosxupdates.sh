@@ -51,6 +51,7 @@ if [[ `uname` == 'Darwin' ]]; then
     echo -e "\n  Checking Apple Software Update Server for available updates,\n  Please be patient. This process may take a while to complete... \c"
     sudo /usr/sbin/softwareupdate -l &> $tmp_file
     wait
+    sudo -v
 
     echo -e "\n"
     reboot=$(/usr/bin/grep "restart" $tmp_file | /usr/bin/wc -l | xargs )
@@ -71,15 +72,19 @@ if [[ `uname` == 'Darwin' ]]; then
         then
           echo "    Updates found, but no reboot required. Installing now."
           echo "    Please be patient. This process may take a while to complete."
+          sudo -v
           sudo /usr/sbin/softwareupdate -ia
           wait
+          sudo -v
           echo -e "\n  Finished with all Apple Software Update installations."
         else
           echo "    Updates found, reboot required. Installing now."
           echo "    Please be patient. This process may take a while to complete."
           echo -e "    Once complete, this machine will automatically restart.\n"
+          sudo -v
           sudo /usr/sbin/softwareupdate -ia
           wait
+          sudo -v
           echo -e "    Finished with all Apple Software Update installations."
         fi
       fi
@@ -108,15 +113,18 @@ if [[ `uname` == 'Darwin' ]]; then
       ## As per https://sector7g.be/posts/installing-xcode-command-line-tools-through-terminal-without-any-user-interaction
 
       touch /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
-
+      sudo -v
       sudo /usr/sbin/softwareupdate -ia
       wait
+      sudo -v
 
       /bin/rm /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
 
       # Check one last time for updates - TBD: refactor to do a test first.
+      sudo -v
       sudo /usr/sbin/softwareupdate -ia
       wait
+      sudo -v
 
       echo -e "\n    Finished installing Apple Command Line Tools."
     else

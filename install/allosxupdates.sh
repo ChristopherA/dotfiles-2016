@@ -2,6 +2,7 @@
 
 # Install all macOS updates, reboot if necessary, and install command line tools
 
+# 2017-10-13 Confirmed working with macOS High Sierra 10.13.0
 # 2016-09-21 Confirmed working with macOS Sierra 10.12.0
 
 # Execute on a new machine via:

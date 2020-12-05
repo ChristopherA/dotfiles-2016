@@ -1,3 +1,9 @@
+**WARNING: ARCHIVED 2020**
+----------------------
+This repo is archived for my personal historical uses.
+
+These `bash` dotfiles worked with versions of MacOS from 10.9 Mavericks (released 2013) through 10.13 High Sierra (released 2017), but was polished for public and committed to GitHub in 2015. I largely used this approach until MacOS High Sierra where I started to use a different `stow` based architecture for dotfiles (https://github.com/ChristopherA/dotfiles-stow/). By the time of the MacOS Mojave (released 2018) it started having problems, and of course Apple moved away from `bash` to `zsh` in MacOS Catalina (released 2019) so it became deprecated.
+
 ChristopherA's dotfiles
 -----------------------
 
